@@ -28,11 +28,13 @@ setInterval(function(){
 Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
 
 function upgradeWeapon(){
-    Game.money-=upgradeCost;
-    upgradeCost=Math.ceil(upgradeCost*1.5);
-    fireRate=Math.floor(fireRate/1.5);
-    moneyDisplay.text("Money: "+Game.money);
-    upgradeDisplay.text("Press E to Upgrade. Cost: "+upgradeCost);
+    if(Game.money>=upgradeCost){
+        Game.money-=upgradeCost;
+        upgradeCost=Math.ceil(upgradeCost*1.5);
+        fireRate=Math.floor(fireRate/1.5);
+        moneyDisplay.text("Money: "+Game.money);
+        upgradeDisplay.text("Press E to Upgrade. Cost: "+upgradeCost);
+    }
 }
 
 
