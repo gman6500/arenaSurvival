@@ -15,6 +15,9 @@ var Game={
     //                      max   min   min
     wallNum:Math.random() * (100 - 50) + 50,
 };
+setInterval(function(){
+    enemyProperties.speed=enemyProperties.speed*1.1;
+},2000)
 var isAlive=true;
 var bulletSpeed=4;
 Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
