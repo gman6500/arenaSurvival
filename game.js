@@ -12,15 +12,50 @@ var enemyProperties={
 var Game={
     width:2000,
     height:2000,
+    money:0,
     //                      max   min   min
     wallNum:Math.random() * (100 - 50) + 50,
 };
+var bulletTimer=true;
+var fireRate=500;
+var upgradeCost=1;
+
+
 setInterval(function(){
     enemyProperties.speed=enemyProperties.speed*1.006;
 },2000)
+
+Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
+
+function upgradeWeapon(){
+    Game.money-=upgradeCost;
+    upgradeCost=Math.ceil(upgradeCost*1.5);
+    fireRate=Math.floor(fireRate/1.5);
+    moneyDisplay.text("Money: "+Game.money);
+    upgradeDisplay.text("Press E to Upgrade. Cost: "+upgradeCost);
+}
+
+
+
 var isAlive=true;
 var bulletSpeed=4;
-Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
+var moneyDisplay= Crafty.e('2D,DOM,Text')
+    .attr({
+        x:-160,
+        y:-50
+    })
+    .one("EnterFrame",function(){
+        this.text("Money: 0")
+    });
+var upgradeDisplay= Crafty.e('2D,DOM,Text')
+    .attr({
+        x:1100,
+        y:-50
+    })
+    .one("EnterFrame",function(){
+        this.text("Press E to Upgrade. Cost: "+upgradeCost);
+    });
+
 
 makeBorder();
 generateWalls();
@@ -70,6 +105,8 @@ enemy.destroy();
 //makes player
 var player= Crafty.e('2D, Canvas, Color, Multiway, Collision, Player')
     .attr({x: 500, y: 250, w:10, h: 10})
+    .attach(moneyDisplay)
+    .attach(upgradeDisplay)
     .color('#F00')
     .multiway(3,{
         W: -90, S: 90, D: 0, A: 180
@@ -78,6 +115,7 @@ var player= Crafty.e('2D, Canvas, Color, Multiway, Collision, Player')
         isAlive=false;
         
         this.destroy();
+        location.reload();
     })
     .bind('Moved', function(from) {
         if(player.hit('Wall')){
@@ -124,6 +162,10 @@ function spawnChaser(){
     newEnemy.bind('EnterFrame', function(eventData){
         var bulletHit=newEnemy.hit("Bullet");
             if (bulletHit) {
+//                 alert("got it")
+                Game.money++;
+                moneyDisplay.text("Money: "+Game.money);
+//                 alert("fds")
                 
                 var bulletHit = bulletHit[0].obj;
                 bulletHit.destroy();
@@ -194,108 +236,120 @@ setInterval(function(){
 //Shoots bullets when arrow keys are hit
 
 $(document).keydown(function(e){
-    
-    if(isAlive){
-        switch(e.which){
-        case 37:
-            
-            var newBullet=bullet.clone();
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-            var counter=0;
-            newBullet.bind('EnterFrame', function() {
+    if(bulletTimer){
+        bulletTimer=false;
+        setTimeout(resetBulletTimer,fireRate)
+        if(isAlive){
 
-                if(this.hit('Wall')){
-                    newBullet.destroy();
-                }
-            });
-                setInterval(function(){
-                    
-                    if(counter<50){
-                        newBullet.x=newBullet.x-bulletSpeed
-                        counter++;
-                        if(this.hit('Enemy')){
-                            alert("ENEMY HIT BULLET 6")
-                            this.destroy();
+            switch(e.which){
+            case 37:
+
+                var newBullet=bullet.clone();
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+                var counter=0;
+                newBullet.bind('EnterFrame', function() {
+
+                    if(this.hit('Wall')){
+                        newBullet.destroy();
+                    }
+                });
+                    setInterval(function(){
+
+                        if(counter<50){
+                            newBullet.x=newBullet.x-bulletSpeed
+                            counter++;
+                            if(this.hit('Enemy')){
+                                alert("ENEMY HIT BULLET 6")
+                                this.destroy();
+                            }
+                        }else{
+                            newBullet.destroy();
+                            return;
                         }
-                    }else{
+                    },10);
+            break;
+            case 38:
+
+                var newBullet=bullet.clone();
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+                var counter=0;
+                newBullet.bind('EnterFrame', function(from) {
+                    if(this.hit('Wall')){
                         newBullet.destroy();
-                        return;
                     }
-                },10);
-        break;
-        case 38:
-            
-            var newBullet=bullet.clone();
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-            var counter=0;
-            newBullet.bind('EnterFrame', function(from) {
-                if(this.hit('Wall')){
-                    newBullet.destroy();
-                }
-            });
-                setInterval(function(){
-                    if(counter<50){
-                        newBullet.y=newBullet.y-bulletSpeed
-                        counter++
-                    }else{
+                });
+                    setInterval(function(){
+                        if(counter<50){
+                            newBullet.y=newBullet.y-bulletSpeed
+                            counter++
+                        }else{
+                            newBullet.destroy();
+                            return;
+                        }
+                    },10);
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+            break;
+            case 39:
+
+                var newBullet=bullet.clone();
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+                var counter=0;
+                newBullet.bind('EnterFrame', function(from) {
+                    if(this.hit('Wall')){
                         newBullet.destroy();
-                        return;
                     }
-                },10);
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-        break;
-        case 39:
-            
-            var newBullet=bullet.clone();
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-            var counter=0;
-            newBullet.bind('EnterFrame', function(from) {
-                if(this.hit('Wall')){
-                    newBullet.destroy();
-                }
-            });
-                setInterval(function(){
-                    if(counter<50){
-                        newBullet.x=newBullet.x+bulletSpeed
-                        counter++
-                    }else{
+                });
+                    setInterval(function(){
+                        if(counter<50){
+                            newBullet.x=newBullet.x+bulletSpeed
+                            counter++
+                        }else{
+                            newBullet.destroy();
+                            return;
+                        }
+                    },10);
+            break;
+            case 40:
+
+                var newBullet=bullet.clone();
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+                var counter=0;
+                newBullet.bind('EnterFrame', function(from) {
+                    if(this.hit('Wall')){
                         newBullet.destroy();
-                        return;
                     }
-                },10);
-        break;
-        case 40:
-            
-            var newBullet=bullet.clone();
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-            var counter=0;
-            newBullet.bind('EnterFrame', function(from) {
-                if(this.hit('Wall')){
-                    newBullet.destroy();
-                }
-            });
-                setInterval(function(){
-                    if(counter<50){
-                        newBullet.y=newBullet.y+bulletSpeed
-                        counter++
-                    }else{
-                        newBullet.destroy();
-                        return;
-                    }
-                },10);
-            newBullet.x=player.x;
-            newBullet.y=player.y;
-        break;
+                });
+                    setInterval(function(){
+                        if(counter<50){
+                            newBullet.y=newBullet.y+bulletSpeed
+                            counter++
+                        }else{
+                            newBullet.destroy();
+                            return;
+                        }
+                    },10);
+                newBullet.x=player.x;
+                newBullet.y=player.y;
+            break;
+                case 69:
+                    upgradeWeapon();
+                break;
+            }
+        }else{
+
         }
-    }else{
-    
     }
 })
+
+function resetBulletTimer(){
+    bulletTimer=true;
+}
+
 
 // TO DO:
 // 
