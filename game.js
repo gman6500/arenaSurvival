@@ -16,7 +16,7 @@ var Game={
     wallNum:Math.random() * (100 - 50) + 50,
 };
 setInterval(function(){
-    enemyProperties.speed=enemyProperties.speed*1.1;
+    enemyProperties.speed=enemyProperties.speed*1.006;
 },2000)
 var isAlive=true;
 var bulletSpeed=4;
