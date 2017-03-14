@@ -46,13 +46,21 @@ var moneyDisplay= Crafty.e('2D,DOM,Text')
         x:-160,
         y:-50
     })
+    .textFont({
+        size:'20px'
+    })
     .one("EnterFrame",function(){
         this.text("Money: 0")
-    });
+        
+    })
+    
 var upgradeDisplay= Crafty.e('2D,DOM,Text')
     .attr({
         x:1100,
         y:-50
+    })
+    .textFont({
+        size:'20px'
     })
     .one("EnterFrame",function(){
         this.text("Press E to Upgrade. Cost: "+upgradeCost);
