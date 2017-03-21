@@ -4,7 +4,7 @@ Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById(
 var spawnEnemy=true;
 
 var enemyProperties={
-    speed:100,
+    speed:50,
     spawnTime:750
 };
 var Game={
