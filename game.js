@@ -1,10 +1,8 @@
-  /**
-* Created with crafty.
-* User: gman6500
-* Date: 2015-09-04
-* Time: 02:58 PM
-* To change this template use Tools | Templates.
-*/
+Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
+
+
+var spawnEnemy=true;
+
 var enemyProperties={
     speed:100,
     spawnTime:750
@@ -13,19 +11,20 @@ var Game={
     width:2000,
     height:2000,
     money:0,
-    //                      max   min   min
-    wallNum:Math.random() * (100 - 50) + 50,
+    activeShops:Math.floor(Math.random()*(5-1)+1),
+    //                                  max   min   min
+    wallNum:Math.floor(Math.random() * (100 - 50) + 50),
 };
 var bulletTimer=true;
 var fireRate=500;
 var upgradeCost=1;
-
+// alert(Game.activeShops);
 
 setInterval(function(){
     enemyProperties.speed=enemyProperties.speed*1.006;
 },2000)
 
-Crafty.init(window.innerWidth-23,window.innerHeight-24, document.getElementById('game'));
+
 
 function upgradeWeapon(){
     if(Game.money>=upgradeCost){
@@ -33,7 +32,7 @@ function upgradeWeapon(){
         upgradeCost=Math.ceil(upgradeCost*1.5);
         fireRate=Math.floor(fireRate/1.5);
         moneyDisplay.text("Money: "+Game.money);
-        upgradeDisplay.text("Press E to Upgrade. Cost: "+upgradeCost);
+//         upgradeDisplay.text("Press E to Upgrade. Cost: "+upgradeCost);
     }
 }
 
@@ -56,19 +55,51 @@ var moneyDisplay= Crafty.e('2D,DOM,Text')
     
 var upgradeDisplay= Crafty.e('2D,DOM,Text')
     .attr({
-        x:1100,
-        y:-50
+        x:400,
+        y:-50,
+        w:400,
     })
     .textFont({
-        size:'20px'
+        size:'18px'
     })
+//     .textAlign("left")
     .one("EnterFrame",function(){
-        this.text("Press E to Upgrade. Cost: "+upgradeCost);
+        this.text("Press E to Purchase Upgrades");
     });
 
 
 makeBorder();
 generateWalls();
+for(i=0;i<Game.activeShops;i++){
+    makeShop();
+}
+
+function makeShop(){
+        
+        var newShop= Crafty.e('2D,Canvas,Color,Shop,Collision, FireRate')
+            .attr({x: Math.random() * (Game.width - 5) + 5, y: Math.random() * (Game.height - 5) + 5, w:30, h:15})
+            .color('orange')
+            .one('EnterFrame',function(){
+                
+                if(this.hit("Player")){
+                    this.destroy()
+                    makeShop();
+                    return;
+                }
+                if(this.hit("Wall")){
+                    this.destroy()
+                    makeShop();
+                    return;
+                }
+            });
+        var newShopText=Crafty.e('2D,DOM,Text,ShopText')
+            .attr({x:newShop.x-30,y:newShop.y-20,w:100,h:30})
+            .text("FireRate Up Cost:"+upgradeCost)
+        newShop.attach(newShopText);
+//             alert("X:"+newShop.x+" Y:"+newShop.y)
+            
+          
+}
 
 function makeWall(){
     var newWall=
@@ -239,9 +270,12 @@ function spawnChaser(){
 
 
 //This starts spawning enemies
-setInterval(function(){
-    spawnChaser();
-},enemyProperties.spawnTime);
+
+if(spawnEnemy){
+    setInterval(function(){
+        spawnChaser();
+    },enemyProperties.spawnTime);
+}
 
 //Shoots bullets when arrow keys are hit
 
@@ -270,7 +304,7 @@ $(document).keydown(function(e){
                             newBullet.x=newBullet.x-bulletSpeed
                             counter++;
                             if(this.hit('Enemy')){
-                                alert("ENEMY HIT BULLET 6")
+//                                 alert("ENEMY HIT BULLET 6")
                                 this.destroy();
                             }
                         }else{
@@ -347,7 +381,15 @@ $(document).keydown(function(e){
                 newBullet.y=player.y;
             break;
                 case 69:
-                    upgradeWeapon();
+                    var hitData;
+                    if(hitData=player.hit('Shop')){
+                        upgradeWeapon();
+                        hitData[0].obj.destroy();
+                        makeShop();
+                        Crafty("ShopText").each(function(){
+                            this.text("FireRate Up Cost:"+upgradeCost)
+                        })
+                    }
                 break;
             }
         }else{
