@@ -18,11 +18,12 @@ var Game={
 var bulletTimer=true;
 var fireRate=500;
 var upgradeCost=1;
+var range=60;
 // alert(Game.activeShops);
 
 setInterval(function(){
-    enemyProperties.speed=enemyProperties.speed*1.006;
-},2000)
+    enemyProperties.speed=enemyProperties.speed*1.01;
+},1000)
 
 
 
@@ -70,6 +71,7 @@ var upgradeDisplay= Crafty.e('2D,DOM,Text')
 
 makeBorder();
 generateWalls();
+
 for(i=0;i<Game.activeShops;i++){
     makeShop();
 }
@@ -199,6 +201,12 @@ function spawnChaser(){
             spawnChaser();
         }
     });
+    newEnemy.one("EnterFrame",function(){
+        if(this.x<0||this.y<0||this.x>Game.width||this.y>Game.height){
+            this.destroy();
+            spawnChaser();
+        }
+    });
     console.log("binding chase commands")
     newEnemy.bind('EnterFrame', function(eventData){
         var bulletHit=newEnemy.hit("Bullet");
@@ -300,7 +308,7 @@ $(document).keydown(function(e){
                 });
                     setInterval(function(){
 
-                        if(counter<50){
+                        if(counter<range){
                             newBullet.x=newBullet.x-bulletSpeed
                             counter++;
                             if(this.hit('Enemy')){
@@ -325,7 +333,7 @@ $(document).keydown(function(e){
                     }
                 });
                     setInterval(function(){
-                        if(counter<50){
+                        if(counter<range){
                             newBullet.y=newBullet.y-bulletSpeed
                             counter++
                         }else{
@@ -348,7 +356,7 @@ $(document).keydown(function(e){
                     }
                 });
                     setInterval(function(){
-                        if(counter<50){
+                        if(counter<range){
                             newBullet.x=newBullet.x+bulletSpeed
                             counter++
                         }else{
@@ -369,7 +377,7 @@ $(document).keydown(function(e){
                     }
                 });
                     setInterval(function(){
-                        if(counter<50){
+                        if(counter<range){
                             newBullet.y=newBullet.y+bulletSpeed
                             counter++
                         }else{
